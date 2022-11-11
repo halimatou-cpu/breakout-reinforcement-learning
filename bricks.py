@@ -40,9 +40,18 @@ class Bricks:
 
 	def create_lane(self, y_cor):
 		for i in range(-570, 570, 63):
+		# for i in range(-450, 450, 63):
 			brick = Brick(i, y_cor)
 			self.bricks.append(brick)
 
 	def create_all_lanes(self):
 		for i in range(self.y_start, self.y_end, 32):
+			print(i)
 			self.create_lane(i)
+
+	def reset(self):
+		for brick in self.bricks:
+			brick.clear()
+			brick.goto(3000, 3000)
+		self.bricks.clear()
+		self.create_all_lanes()

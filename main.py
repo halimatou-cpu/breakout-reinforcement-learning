@@ -13,6 +13,7 @@ screen.bgcolor('black')
 screen.title('Breakout')
 screen.tracer(0)
 
+
 ui = UI()
 ui.header()
 
@@ -29,17 +30,44 @@ playing_game = True
 
 def pause_game():
 	global game_paused
-	if game_paused:
-		game_paused = False
-	else:
-		game_paused = True
+	game_paused = not game_paused
 
+def restart_game():
+	global playing_game, score, ui, bricks
+	time.sleep(0.5)
+	score.reset()
+	score.set_lives(5)
+	# bricks.bricks.clear()
+	ball.reset()
+	paddle.reset()
+	bricks.reset()
+	ui.clear()
+	ui.header()
+	# empty the list of bricks then refill it
+	# bricks = Bricks()
+	screen.update()
+	playing_game = True
+	print('Game Restarted', playing_game)
+	game_loop()
 
 screen.listen()
 screen.onkey(key='Left', fun=paddle.move_left)
 screen.onkey(key='Right', fun=paddle.move_right)
 screen.onkey(key='space', fun=pause_game)
+screen.onkey(key='r', fun=restart_game)
 
+def game_reset():
+	global ball, score, playing_game, ui
+	ball.reset()
+	paddle.reset()
+	score.decrease_lives()
+	if score.lives == 0:
+		playing_game = False
+		ui.game_over(win=False, score=score.score)
+		score.reset()
+		return
+	ui.change_color()
+	return
 
 def check_collision_with_walls():
 
@@ -59,15 +87,7 @@ def check_collision_with_walls():
 	# In this case, user failed to hit the ball
 	# thus he loses. The game resets.
 	if ball.ycor() < -280:
-		ball.reset()
-		score.decrease_lives()
-		if score.lives == 0:
-			score.reset()
-			playing_game = False
-			ui.game_over(win=False)
-			return
-		ui.change_color()
-		return
+		game_reset()
 
 
 def check_collision_with_paddle():
@@ -125,10 +145,13 @@ def check_collision_with_bricks():
 		if ball.distance(brick) < 40:
 			score.increase_score()
 			brick.quantity -= 1
-			if brick.quantity == 0:
-				brick.clear()
-				brick.goto(3000, 3000)
-				bricks.bricks.remove(brick)
+			# if brick.quantity == 0:
+			# 	brick.clear()
+			# 	brick.goto(3000, 3000)
+			# 	bricks.bricks.remove(brick)
+			brick.clear()
+			brick.goto(3000, 3000)
+			bricks.bricks.remove(brick)
 
 			# detect collision from left
 			if ball.xcor() < brick.left_wall:
@@ -147,31 +170,35 @@ def check_collision_with_bricks():
 				ball.bounce(x_bounce=False, y_bounce=True)
 
 
-while playing_game:
+def game_loop():
+	while playing_game:
+		# print('Game Running')
 
-	if not game_paused:
+		if not game_paused:
+			# print('game is not paused')
+			# UPDATE SCREEN WITH ALL THE MOTION THAT HAS HAPPENED
+			screen.update()
+			time.sleep(0.01)
+			ball.move()
 
-		# UPDATE SCREEN WITH ALL THE MOTION THAT HAS HAPPENED
-		screen.update()
-		time.sleep(0.01)
-		ball.move()
+			# DETECTING COLLISION WITH WALLS
+			check_collision_with_walls()
 
-		# DETECTING COLLISION WITH WALLS
-		check_collision_with_walls()
+			# DETECTING COLLISION WITH THE PADDLE
+			check_collision_with_paddle()
 
-		# DETECTING COLLISION WITH THE PADDLE
-		check_collision_with_paddle()
+			# DETECTING COLLISION WITH A BRICK
+			check_collision_with_bricks()
+			
+			# DETECTING USER'S VICTORY
+			if len(bricks.bricks) == 0:
+				ui.game_over(win=True, score=score.score)
+				break
 
-		# DETECTING COLLISION WITH A BRICK
-		check_collision_with_bricks()
-		
-		# DETECTING USER'S VICTORY
-		if len(bricks.bricks) == 0:
-			ui.game_over(win=True)
-			break
+		else:
+			# print('Game Paused')
+			ui.paused_status()
 
-	else:
-		ui.paused_status()
-
+game_loop()
 
 tr.mainloop()

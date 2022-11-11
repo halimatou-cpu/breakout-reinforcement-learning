@@ -42,3 +42,8 @@ class Scoreboard(Turtle):
 		self.score = 0
 		self.update_score()
 		open('highestScore.txt', 'w').write(str(self.highScore))
+
+	# set lives to initial value
+	def set_lives(self, lives):
+		self.lives = lives
+		self.update_score()

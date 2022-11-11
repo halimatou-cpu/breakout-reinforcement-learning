@@ -40,9 +40,17 @@ class UI(Turtle):
 		self.change_color()
 		time.sleep(0.5)
 
-	def game_over(self, win):
+	def game_over(self, win, score):
 		self.clear()
 		if win == True:
 			self.write('You Cleared the Game', align='center', font=FONT)
 		else:
-			self.write("Game is Over", align='center', font=FONT)
+			# concat = 'Game Over! Score: ' + str(score)
+			self.write("Game is Over with score: " + str(score), align='center', font=FONT)
+			# button to restart the game below the game over text
+			self.goto(x=0, y=-100)
+			self.write('Press R to Restart the Game', align='center',
+					font=FONT2)
+
+
+

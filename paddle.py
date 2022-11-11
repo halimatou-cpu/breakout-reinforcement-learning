@@ -18,3 +18,7 @@ class Paddle(Turtle):
 
 	def move_right(self):
 		self.forward(MOVE_DIST)
+
+	def reset(self):
+		self.goto(x=0, y=-280)
+		
